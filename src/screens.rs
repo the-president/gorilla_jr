@@ -324,7 +324,7 @@ impl Screen
 
 	fn draw_top_panel(&self)
 	{
-		write!(stdout(),"{}{}{} f1:play   f2: edit\n\r",cursor::Goto(1,1),Fg(Reset),Bg(Reset)).unwrap();
+		write!(stdout(),"{}{}{}{} f1:play   f2: edit\n\r",cursor::Goto(1,1),clear::CurrentLine,Fg(Reset),Bg(Reset)).unwrap();
 		
 		for _i in 0 .. self.w
 		{
@@ -332,10 +332,15 @@ impl Screen
 		}
 	}
 
+	fn clear_main_screen(&self)
+	{
+		write!(stdout(),"{}{}",cursor::Goto(1,3),clear::AfterCursor).unwrap();
+	}
+
 	pub fn draw(&self,player:&Player,)
 	{
-		write!(stdout(),"{}{}",cursor::Goto(1,1),clear::AfterCursor).unwrap();
 		self.draw_top_panel();
+		self.clear_main_screen();
 
 		match self.mode
 		{
