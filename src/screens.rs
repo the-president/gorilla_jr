@@ -15,7 +15,7 @@ const BAR_SIZE:usize = 16;
 
 fn draw_seq(mut screen : impl std::io::Write, x : u16,y : u16,seq : &Seq)
 {
-	write!(screen,"{}",cursor::Goto(x,y+1)).unwrap();
+	write!(screen,"{}{}\n",cursor::Goto(x,y),clear::CurrentLine).unwrap();
 
 	for i in 0..seq.length
 	{
@@ -23,8 +23,8 @@ fn draw_seq(mut screen : impl std::io::Write, x : u16,y : u16,seq : &Seq)
 		{
 			match x
 			{
-				0 => write!(screen,"\r\n\n").unwrap(),
-				n => write!(screen,"\r\n\n{}",cursor::Right(n - 1)).unwrap()
+				0 => write!(screen,"\r\n{}\n{}",clear::CurrentLine,clear::CurrentLine).unwrap(),
+				n => write!(screen,"\r\n{}\n{}{}",clear::CurrentLine,clear::CurrentLine,cursor::Right(n - 1)).unwrap()
 			};
 		}
 
@@ -52,6 +52,7 @@ fn draw_seq(mut screen : impl std::io::Write, x : u16,y : u16,seq : &Seq)
 
 	//ok now draw the ticks per step
 	write!(screen,"ticks: {}    channel:{}    port:{}",seq.ticks_per_step,seq.channel,seq.port).unwrap();
+	write!(screen,"\r\n{}",clear::AfterCursor).unwrap();
 }
 
 enum Mode
@@ -293,7 +294,7 @@ impl Screen
 
 	fn draw_play_screen(&self,player:&Player)
 	{
-		write!(stdout(),"{}",cursor::Goto(1,3)).unwrap();
+		write!(stdout(),"{}{}",cursor::Goto(1,3),clear::CurrentLine).unwrap();
 
 		let playing_seqs = player.midi_map.iter()
 		.enumerate()
@@ -312,14 +313,16 @@ impl Screen
 
 			match (seq.state,seq.hold)
 			{
-				(sequence::PlayState::Playing,true) => write!(stdout(),"{}{}{}\n\r",Bg(Magenta),note_lookup::note_str(i as u8),Bg(Reset)).unwrap(),
-				(sequence::PlayState::Playing,false) => write!(stdout(),"{}\n\r",note_lookup::note_str(i as u8)).unwrap(),
-				(sequence::PlayState::Starting,_) => write!(stdout(),"{}{}{}\n\r",Bg(Cyan),note_lookup::note_str(i as u8),Bg(Reset)).unwrap(),
+				(sequence::PlayState::Playing,true) => write!(stdout(),"{}{}{}{}\n\r",clear::CurrentLine,Bg(Magenta),note_lookup::note_str(i as u8),Bg(Reset)).unwrap(),
+				(sequence::PlayState::Playing,false) => write!(stdout(),"{}{}\n\r",clear::CurrentLine,note_lookup::note_str(i as u8)).unwrap(),
+				(sequence::PlayState::Starting,_) => write!(stdout(),"{}{}{}{}\n\r",clear::CurrentLine,Bg(Cyan),note_lookup::note_str(i as u8),Bg(Reset)).unwrap(),
 				_=>()
 			}
 
 			write!(stdout(),"{}",termion::style::NoUnderline).unwrap();
 		}
+
+		write!(stdout(),"{}",clear::AfterCursor).unwrap();
 	}
 
 	fn draw_top_panel(&self)
@@ -332,15 +335,9 @@ impl Screen
 		}
 	}
 
-	fn clear_main_screen(&self)
-	{
-		write!(stdout(),"{}{}",cursor::Goto(1,3),clear::AfterCursor).unwrap();
-	}
-
 	pub fn draw(&self,player:&Player,)
 	{
 		self.draw_top_panel();
-		self.clear_main_screen();
 
 		match self.mode
 		{
