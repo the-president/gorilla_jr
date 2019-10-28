@@ -73,7 +73,6 @@ impl Player
 
 	pub fn note_on(&mut self, nn : usize)
 	{
-		eprintln!("NOTE ON!");
 		let mut seq = &mut self.midi_map[nn];
 
 		if seq.hold

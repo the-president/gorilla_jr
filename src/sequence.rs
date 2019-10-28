@@ -149,7 +149,7 @@ impl Seq
 		{
 			Trigger::On(nn,vel) => 
 			{
-				out_port::note_on(con,0,nn,vel).unwrap();
+				out_port::note_on(con,self.channel,nn,vel).unwrap();
 				self.note_on = Some(nn)
 			}
 			_=> ()
@@ -166,7 +166,7 @@ impl Seq
 		{
 			Some(nn) => 
 			{
-				out_port::note_off(con,0,nn,127).unwrap();
+				out_port::note_off(con,self.channel,nn,127).unwrap();
 				self.note_on = None;
 			}
 			_ => ()
