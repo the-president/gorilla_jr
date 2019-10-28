@@ -138,7 +138,7 @@ pub fn apply_config(player: &mut Player, conf: & Config) -> Result<(),ConfError>
 		let midi_out = MidiOutput::new("WOWOOWOOOWOOW").unwrap();
 		let con = midi_out.connect(*pnum,"some thing").unwrap();
 
-		player.out_connections.push((i,con));
+		player.out_connections.push((*pnum,con));
 	}
 
 	Ok(())
